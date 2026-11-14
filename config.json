@@ -1,0 +1,24 @@
+{
+  "startEquity": 20,
+  "notionalPerTrade": 5,
+  "maxOpen": 4,
+  "tf": "1h",
+  "W": 6,
+  "leanMinPts": 10,
+  "entryFilter": "counter",
+  "maxLossesPerDay": 3,
+  "minChance": 0.53,
+  "tpMode": "fixed",
+  "tpPct": 0.1,
+  "slPct": 0.75,
+  "feeBpsPerSide": 5,
+  "topN": 40,
+  "minVolUsd": 1000000,
+  "allowShort": true,
+  "retentionDays": 120,
+  "lanes": [
+    { "name": "scalp", "tpPct": 0.10, "slPct": 0.75 },
+    { "name": "balanced", "tpPct": 0.30, "slPct": 1.50 },
+    { "name": "runner", "tpPct": 3.00, "slPct": 4.00 }
+  ]
+}

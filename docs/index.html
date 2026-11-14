@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Move Paper Bot — lane race</title>
+<style>
+:root{--bg:#0e1117;--panel:#161b24;--line:#262d3a;--txt:#e6e9ef;--dim:#8b95a5;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--blue:#60a5fa}
+@media (prefers-color-scheme: light){:root{--bg:#f5f6f8;--panel:#fff;--line:#dfe3ea;--txt:#171b22;--dim:#5d6676;--green:#15803d;--red:#b91c1c;--amber:#b45309;--blue:#1d4ed8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1250px;margin:0 auto;padding:14px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+h1{font-size:18px;margin:0}h1 small{color:var(--dim);font-weight:400;font-size:12px;margin-left:8px}
+.status{color:var(--dim);font-size:12px}.status.ok{color:var(--green)}.status.bad{color:var(--red)}
+button{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font:inherit}button:hover{border-color:var(--blue)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px}.card .k{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.04em}.card .v{font-size:17px;font-weight:600}.card .s{color:var(--dim);font-size:11px;margin-top:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}.tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}th{color:var(--dim);font-weight:500;text-align:right;border-bottom:1px solid var(--line);padding:5px 8px}th.l,td.l{text-align:left}td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+.pos{color:var(--green)}.neg{color:var(--red)}.dim{color:var(--dim)}
+.tag{padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600}.tag.long{background:rgba(74,222,128,.15);color:var(--green)}.tag.short{background:rgba(248,113,113,.15);color:var(--red)}.tag.flag{background:var(--amber);color:#000}.tag.lead{background:var(--amber);color:#000}
+.lane{padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.lgd{display:inline-flex;align-items:center;gap:5px;margin:0 14px 6px 0;font-size:12px;color:var(--dim)}
+.hint{color:var(--dim);font-size:12px;margin:0 0 8px}.warn{background:rgba(251,191,36,.12);border:1px solid var(--amber);color:var(--amber);border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:12.5px}
+.rules h3{margin:14px 0 4px;font-size:14px}.rules p,.rules li{font-size:13px}.rules code{background:var(--bg);padding:1px 5px;border-radius:4px}
+.rules table{margin:6px 0}.rules td,.rules th{text-align:left;white-space:normal}
+canvas{width:100%;max-width:1000px;height:auto}footer{color:var(--dim);font-size:11.5px;margin-top:12px}
+.dl{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.dl a{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--blue);text-decoration:none;font-size:12.5px}
+</style></head><body><div class="wrap">
+<header><h1>Move Paper Bot <small>the lane race &middot; one signal stream, three exit geometries &middot; paper traded &middot; runs by itself &middot; no orders, no keys</small></h1>
+<div><span id="status" class="status">Loading...</span> <button id="btnRefresh">Reload</button></div></header>
+<div id="errs"></div>
+<div class="cards" id="cards"></div>
+<div class="tabs"><button data-t="now" class="on">Right now</button><button data-t="open">Open trades</button><button data-t="closed">Closed trades</button><button data-t="race">Lane race</button><button data-t="math">Rules &amp; the honest math</button><button data-t="data">Data</button></div>
+<div class="panel" id="tabBody">Loading...</div>
+<footer>Paper trading only: this page never places orders and uses no API keys. Shorts are SIMULATED (a spot account cannot short; the label means "would have sold"). Fills are at exact candle prices, which is optimistic vs real slippage. Backtested numbers are not a promise; this is not financial advice.</footer>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let S = { st: null, tab: 'now' };
+const PALETTE = ['#f5b301', '#3fb950', '#a371f7', '#388bfd', '#e05263', '#14b8a6'];
+const pct = (x, d = 1) => !Number.isFinite(x) ? '-' : (x * 100).toFixed(d) + '%';
+const usd = (x, d = 2) => !Number.isFinite(x) ? '-' : (x < 0 ? '-$' : '$') + Math.abs(x).toFixed(d);
+const susd = (x, d = 3) => !Number.isFinite(x) ? '-' : (x > 0 ? '+$' : x < 0 ? '-$' : '$') + Math.abs(x).toFixed(d);
+const tstr = (ms) => ms ? new Date(ms).toISOString().replace('T', ' ').slice(0, 16) + 'Z' : '-';
+const px = (x) => !Number.isFinite(x) ? '-' : x >= 100 ? x.toFixed(2) : x >= 1 ? x.toFixed(3) : x >= 0.01 ? x.toFixed(5) : x.toPrecision(3);
+const cls = (x) => x > 0 ? 'pos' : x < 0 ? 'neg' : '';
+const side = (s) => s > 0 ? '<span class="tag long">LONG</span>' : '<span class="tag short">SHORT<span style="font-weight:400">*</span></span>';
+function dirCell(d) {
+  if (d == null) return '<span class="dim">&ndash;</span>';
+  const up = d > 0.5;
+  return '<span class="tag ' + (up ? 'long' : 'short') + '">' + (up ? 'Up ' : 'Down ') + Math.round((up ? d : 1 - d) * 100) + '%</span>';
+}
+/* lane metadata: configured lanes first (colored by order), then any book left in state (retired) */
+function laneMeta() {
+  const st = S.st, out = [];
+  ((st.cfg && st.cfg.lanes) || []).forEach((l, i) => out.push({ name: l.name, tp: l.tpPct, sl: l.slPct, color: PALETTE[i % PALETTE.length], active: true }));
+  Object.keys(st.lanes || {}).forEach(nm => { if (!out.find(x => x.name === nm)) out.push({ name: nm, tp: null, sl: null, color: PALETTE[out.length % PALETTE.length], active: false }); });
+  return out;
+}
+const laneChip = (m) => m ? '<span class="lane" style="background:' + m.color + '">' + m.name + (m.active ? '' : ' ·retired') + '</span>' : '-';
+const laneGeo = (m) => m.tp != null ? 'TP ' + m.tp + '% / SL ' + m.sl + '%' : 'TP ' + S.st.cfg.tpPct + '% / SL ' + S.st.cfg.slPct + '%' + (S.st.cfg.tpMode !== 'fixed' ? ' (' + S.st.cfg.tpMode + ')' : '');
+
+function render() {
+  const st = S.st; if (!st) return;
+  const c = st.cfg, t = st.totals || {};
+  const metas = laneMeta();
+  const openAll = Object.values(st.lanes || {}).reduce((a, L) => a + (L.open || []).length, 0);
+  const days = Math.max(0, (Date.now() - st.startMs) / 86400000);
+  let h = '';
+  for (const m of metas) {
+    const L = st.lanes[m.name] || {}, s = L.stats || {};
+    h += '<div class="card" style="border-left:3px solid ' + m.color + '">'
+      + '<div class="k">' + m.name + ' &middot; ' + laneGeo(m) + '</div>'
+      + '<div class="v">' + usd(L.equity) + '</div>'
+      + '<div class="s"><span class="' + cls(s.net) + '">' + susd(s.net || 0) + '</span> net &middot; ' + (s.n ? pct(s.winRate, 1) + ' WR &middot; ' + s.n + ' trades' : 'no closed trades yet') + ' &middot; ' + (L.open || []).length + ' open' + (m.active ? '' : ' &middot; removed from config') + '</div></div>';
+  }
+  h += '<div class="card"><div class="k">Trades (all lanes)</div><div class="v" style="font-size:15px">' + (t.n || 0) + ' closed / ' + openAll + ' open</div><div class="s">' + (t.longN || 0) + ' long, ' + (t.shortN || 0) + ' simulated short</div></div>';
+  h += '<div class="card"><div class="k">Fees paid</div><div class="v">' + usd(t.fees || 0) + '</div><div class="s">at ' + c.feeBpsPerSide + ' bps/side = ' + (2 * c.feeBpsPerSide) + ' bps round-trip</div></div>';
+  h += '<div class="card"><div class="k">Days live</div><div class="v" style="font-size:15px">' + (days < 1 ? '<1' : Math.floor(days)) + '</div><div class="s">since ' + tstr(st.startMs).slice(0, 10) + ' &middot; ' + (c.tf + ' candles') + '</div></div>';
+  $('cards').innerHTML = h;
+  const age = (Date.now() - st.updatedMs) / 60000, msgs = [];
+  if (age > 45) msgs.push('Data is ' + (age / 60).toFixed(1) + ' hours old. GitHub may have paused the scheduled job (it does that after 60 idle days): open the Actions tab and re-enable the workflow.');
+  if (st.errs) msgs.push(st.errs + ' coins failed to load on the last run.');
+  if (!t.n && days < 1) msgs.push('The books just started. With the default filter (chance >= ' + c.minChance + ' AND lean >= ' + c.leanMinPts + 'pts AND ' + (c.entryFilter === 'counter' ? 'the last candle moving AGAINST the lean' : 'the ' + c.entryFilter + ' filter') + ') expect roughly 2-3 paper trades per day per lane. Quiet days with zero trades are normal.');
+  $('errs').innerHTML = msgs.map(x => '<div class="warn">' + x + '</div>').join('');
+  renderTab();
+}
+function nowTab() {
+  const st = S.st, c = st.cfg;
+  const lossesToday = (st.dailyLoss || {})[new Date().toISOString().slice(0, 10)] || 0;
+  const metas = laneMeta();
+  const laneLine = metas.map(m => { const L = st.lanes[m.name] || {}; return m.name + ' ' + (L.open || []).length + '/' + c.maxOpen + ' open'; }).join(' &middot; ');
+  let h = '<p class="hint">The last closed ' + c.tf + ' candle, ranked by the magnitude model (chance of an event-size move within ' + c.W + ' candles). The bot only acts when THREE boxes are ticked: chance >= ' + c.minChance + ', a direction lean of at least ' + c.leanMinPts + ' points, and ' + (c.entryFilter === 'counter' ? 'the last candle having moved AGAINST the lean (the counter/fade entry that carries the 95% win-rate profile)' : 'the ' + c.entryFilter + ' entry filter') + '. A qualifying signal is taken by EVERY lane at the same entry price &mdash; only the exits differ. Candle closed ' + tstr(st.lastCandleMs) + '.' + (c.maxLossesPerDay > 0 ? ' Daily loss cap per lane: ' + lossesToday + '/' + c.maxLossesPerDay + ' losing closes today &mdash; at ' + c.maxLossesPerDay + ' that lane pauses until tomorrow.' : '') + '</p>';
+  h += '<p class="hint">Lanes right now: ' + laneLine + '</p>';
+  h += '<table><thead><tr><th class="l">#</th><th class="l">Coin</th><th>Chance (' + c.W + ')</th><th>Direction lean</th><th>Last candle</th><th>Event size 6 &uarr;/&darr;</th><th>Would the bot trade it?</th></tr></thead><tbody>';
+  (st.signal || []).forEach((r, i) => {
+    const paOk = r.pa >= c.minChance;
+    const sideSign = r.dl == null ? 0 : (r.dl > 0.5 ? 1 : -1);
+    const leanOk = r.dl != null && Math.abs(r.dl - 0.5) >= c.leanMinPts / 100;
+    let filterOk = true, filterWhy = '';
+    if (c.entryFilter === 'counter') { filterOk = r.r1 != null && sideSign * r.r1 < 0; filterWhy = 'counter: needs the candle against the lean'; }
+    else if (c.entryFilter === 'momentum') { filterOk = r.r1 != null && sideSign * r.r1 > 0; filterWhy = 'momentum: needs the candle with the lean'; }
+    let verdict;
+    if (paOk && leanOk && filterOk) verdict = '<span class="pos">YES</span>';
+    else if (!paOk) verdict = '<span class="dim">no (chance ' + (r.pa != null ? r.pa.toFixed(2) : '-') + ' &lt; ' + c.minChance + ')</span>';
+    else if (!leanOk) verdict = '<span class="dim">no (lean ' + (r.dl != null ? Math.round(Math.abs(r.dl - 0.5) * 100) : 0) + 'pts &lt; ' + c.leanMinPts + ')</span>';
+    else verdict = '<span class="dim">no (' + filterWhy + ')</span>';
+    const r1txt = r.r1 != null ? ((r.r1 > 0 ? '+' : '') + (r.r1 * 100).toFixed(2) + '%') : '&ndash;';
+    h += '<tr><td class="l dim">' + (i + 1) + '</td><td class="l"><b>' + r.s.replace('USDT', '') + '</b>' + (r.fl ? ' <span class="tag flag">TOP5%</span>' : '') + '</td><td>' + (r.pa != null ? Math.round(r.pa * 100) + '%' : '-') + '</td><td>' + dirCell(r.dl) + '</td><td class="' + (r.r1 > 0 ? 'pos' : r.r1 < 0 ? 'neg' : '') + '">' + r1txt + '</td><td>' + (r.u6 != null ? '&uarr; ' + r.u6.toFixed(2) + '% &darr; ' + r.d6.toFixed(2) + '%' : '&ndash;') + '</td><td>' + verdict + '</td></tr>';
+  });
+  return h + '</tbody></table>';
+}
+function openTab() {
+  const st = S.st, metas = laneMeta(), byName = {};
+  metas.forEach(m => byName[m.name] = m);
+  const all = [];
+  for (const m of metas) (st.lanes[m.name] && st.lanes[m.name].open || []).forEach(p => all.push({ p, m }));
+  if (!all.length) return '<p class="hint">No open paper positions right now. They appear at ' + st.cfg.tf + ' candle closes when a coin clears the entry filter (every lane takes the same entry).</p>';
+  let h = '<p class="hint">' + all.length + ' open across the lanes, max ' + st.cfg.maxOpen + ' per lane, one position per coin per lane. Entries fill at the exact close of the signal candle (optimistic vs real slippage). * Shorts are simulated.</p>';
+  h += '<table><thead><tr><th>Lane</th><th>Opened</th><th class="l">Coin</th><th>Side</th><th>Entry</th><th>Last</th><th>TP</th><th>SL</th><th>Notional</th><th>Unrealized</th><th>Lean at entry</th><th>Age (candles)</th></tr></thead><tbody>';
+  for (const { p, m } of all) {
+    const un = p.last != null ? p.side * (p.last / p.entry - 1) * p.notional : null;
+    const ageC = Math.max(0, Math.floor((st.lastCandleMs - p.entryMs) / (st.cfg.tf === '1h' ? 3600e3 : 900e3)));
+    h += '<tr><td>' + laneChip(m) + '</td><td>' + tstr(p.entryMs) + '</td><td class="l"><b>' + p.sym.replace('USDT', '') + '</b></td><td>' + side(p.side) + '</td><td>' + px(p.entry) + '</td><td>' + px(p.last) + '</td><td>' + px(p.tp) + '</td><td>' + px(p.sl) + '</td><td>' + usd(p.notional) + '</td><td class="' + cls(un) + '">' + usd(un, 3) + '</td><td>' + (p.lean != null ? Math.round((p.lean > 0.5 ? p.lean : 1 - p.lean) * 100) + '% ' + (p.lean > 0.5 ? 'up' : 'down') : '-') + '</td><td>' + Math.min(ageC, p.W) + '/' + p.W + '</td></tr>';
+  }
+  return h + '</tbody></table>';
+}
+function closedTab() {
+  const st = S.st, metas = laneMeta(), byName = {};
+  metas.forEach(m => byName[m.name] = m);
+  const rows = [];
+  for (const m of metas) (st.lanes[m.name] && st.lanes[m.name].closedTail || []).forEach(x => rows.push({ c: x, m }));
+  if (!rows.length) return '<p class="hint">No closed trades yet. Scalp and balanced close within a few candles; the runner lane mostly rides to the candle-' + st.cfg.W + ' time exit.</p>';
+  rows.sort((a, b) => b.c.exitMs - a.c.exitMs);
+  let h = '<table><thead><tr><th>Lane</th><th>Exited</th><th class="l">Coin</th><th>Side</th><th>Entry</th><th>Exit</th><th class="l">Why</th><th>Held</th><th>Gross</th><th>Fees</th><th>Net</th><th>R</th><th>MFE</th><th>MAE</th></tr></thead><tbody>';
+  for (const { c: p, m } of rows) {
+    const why = { win: 'take-profit', loss: 'stop', intrabar_win: 'TP (same candle as stop)', intrabar_loss: 'stop (same candle as TP)', timeout: 'time exit' }[p.reason] || p.reason;
+    h += '<tr><td>' + laneChip(m) + '</td><td>' + tstr(p.exitMs) + '</td><td class="l"><b>' + p.sym.replace('USDT', '') + '</b></td><td>' + side(p.side) + '</td><td>' + px(p.entry) + '</td><td>' + px(p.exit) + '</td><td class="l">' + why + '</td><td>' + p.candlesHeld + '</td><td class="' + cls(p.gross) + '">' + usd(p.gross, 3) + '</td><td>' + usd(p.fees, 3) + '</td><td class="' + cls(p.net) + '">' + usd(p.net, 3) + '</td><td class="' + cls(p.R) + '">' + (p.R != null ? p.R.toFixed(2) : '-') + '</td><td>' + (p.mfe != null ? pct(p.mfe) : '-') + '</td><td>' + (p.mae != null ? pct(p.mae) : '-') + '</td></tr>';
+  }
+  return h + '</tbody></table><p class="hint">MFE/MAE = how far price went your way / against you from entry, best case inside the trade, adjusted for trade direction. This is the data we will use to place TP/SL better in the next model round.</p>';
+}
+function raceTab() {
+  const st = S.st, metas = laneMeta(), t = st.totals || {};
+  let best = null;
+  for (const m of metas) { const s = (st.lanes[m.name] || {}).stats || {}; if (s.n > 0 && s.expectancyBps != null && s.expectancyBps > 0 && (!best || s.expectancyBps > best.s.expectancyBps)) best = { m, s }; }
+  if (best && best.s.n < 100) best.pending = true;
+  let h = '<p class="hint">One signal stream, several exits: every lane takes the <b>same entries</b> (same filter, same price, same direction) and only the TP/SL geometry differs, so the difference between the rows is caused by the exit alone. The highlighted row currently has the best expectancy per trade after fees &mdash; no row is highlighted until one is actually positive, and with fewer than ~100 closed trades per lane, treat any ranking as noise. Judge after 500+ trades per lane (several months).</p>';
+  h += '<table><thead><tr><th class="l">Lane</th><th class="l">Geometry</th><th>Trades</th><th>W / L / T</th><th>Win rate</th><th>Worst streak</th><th>Avg win</th><th>Avg loss</th><th>Expectancy</th><th>Fees</th><th>Net P/L</th><th>Equity</th><th>Max DD</th><th>Long / Short</th></tr></thead><tbody>';
+  for (const m of metas) {
+    const L = st.lanes[m.name] || {}, s = L.stats || {};
+    const lead = best && best.m.name === m.name;
+    h += '<tr' + (lead ? ' style="outline:1px solid var(--amber)"' : '') + '><td class="l">' + laneChip(m) + (lead ? ' <span class="tag lead">leading' + (best.pending ? ' (early)' : '') + '</span>' : '') + '</td><td class="l">' + laneGeo(m) + '</td>'
+      + '<td>' + (s.n || 0) + '</td><td>' + (s.wins || 0) + ' / ' + (s.losses || 0) + ' / ' + (s.timeouts || 0) + '</td>'
+      + '<td>' + (s.n ? '<b>' + pct(s.winRate, 1) + '</b>' : '-') + '</td><td>' + (s.n ? s.consecMax + ' losses' : '-') + '</td>'
+      + '<td class="pos">' + (s.avgWin != null ? usd(s.avgWin, 3) : '-') + '</td><td class="neg">' + (s.avgLoss != null ? usd(s.avgLoss, 3) : '-') + '</td>'
+      + '<td class="' + cls(s.expectancy) + '">' + (s.expectancy != null ? susd(s.expectancy, 3) + ' (' + (s.expectancyBps > 0 ? '+' : '') + s.expectancyBps.toFixed(1) + ' bps)' : '-') + '</td>'
+      + '<td>' + usd(s.fees || 0) + '</td><td class="' + cls(s.net) + '">' + susd(s.net || 0) + '</td><td>' + usd(L.equity) + '</td><td>' + (L.maxDD != null ? pct(L.maxDD) : '-') + '</td>'
+      + '<td>' + (s.longN || 0) + ' / ' + (s.shortN || 0) + ' <span class="dim">(' + susd(s.longNet || 0) + ' / ' + susd(s.shortNet || 0) + ')</span></td></tr>';
+  }
+  h += '<tr style="border-top:2px solid var(--line)"><td class="l"><b>All lanes</b></td><td class="l dim">the race together</td><td><b>' + (t.n || 0) + '</b></td><td>' + (t.wins || 0) + ' / ' + (t.losses || 0) + ' / ' + (t.timeouts || 0) + '</td><td>' + (t.n ? pct(t.winRate, 1) : '-') + '</td><td>' + (t.n ? (t.consecMax || 0) + ' losses' : '-') + '</td><td class="pos">' + (t.avgWin != null ? usd(t.avgWin, 3) : '-') + '</td><td class="neg">' + (t.avgLoss != null ? usd(t.avgLoss, 3) : '-') + '</td><td class="' + cls(t.expectancy) + '">' + (t.expectancy != null ? susd(t.expectancy, 3) + ' (' + (t.expectancyBps > 0 ? '+' : '') + (t.expectancyBps || 0).toFixed(1) + ' bps)' : '-') + '</td><td>' + usd(t.fees || 0) + '</td><td class="' + cls(t.net) + '">' + susd(t.net || 0) + '</td><td class="dim">&ndash;</td><td class="dim">&ndash;</td><td>' + (t.longN || 0) + ' / ' + (t.shortN || 0) + '</td></tr>';
+  h += '</tbody></table>';
+  if (st.legacy && st.legacy.n) h += '<p class="hint">Before the lane race this account ran a single strategy: ' + st.legacy.n + ' trades, net ' + susd(st.legacy.net) + ' &mdash; archived in <code>state-v1-archived.json</code>, not part of the race.</p>';
+  h += '<h3 style="font-size:14px;margin:14px 0 2px">Equity, all lanes overlaid</h3>';
+  h += '<div>' + metas.map(m => { const L = st.lanes[m.name] || {}; return '<span class="lgd"><i style="background:' + m.color + ';width:10px;height:3px;display:inline-block"></i>' + m.name + ' ' + usd(L.equity) + '</span>'; }).join('') + '</div>';
+  h += '<canvas id="cv" width="1000" height="340"></canvas><p class="hint">Each lane is an independent $' + st.cfg.startEquity + ' paper book: cash + open positions marked at the last closed candle. Fees are charged when trades close. Flat lines for days are the honest expected outcome &mdash; see the math tab.</p>';
+  return h;
+}
+function drawEq() {
+  const cv = $('cv'); if (!cv) return; const st = S.st, g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  g.clearRect(0, 0, W, H); g.fillStyle = '#9aa4b2'; g.font = '12px sans-serif';
+  const metas = laneMeta();
+  const series = [];
+  for (const m of metas) {
+    const L = st.lanes[m.name] || {};
+    const pts = (L.marks || []).concat([{ d: 'now', t: Date.now(), eq: L.equity }]).filter(p => Number.isFinite(p.eq));
+    if (pts.length) series.push({ m, pts });
+  }
+  if (!series.length) { g.fillText('Not enough data yet (one mark per day).', 20, 30); return; }
+  const allEq = series.flatMap(x => x.pts.map(p => p.eq)).concat([st.cfg.startEquity]);
+  const mn = Math.min(...allEq), mx = Math.max(...allEq);
+  const t0 = Math.min(...series.map(x => x.pts[0].t || Date.parse(x.pts[0].d))), t1 = Date.now();
+  const pad = 46, y = v => H - pad - (v - mn) / (mx - mn || 1) * (H - 2 * pad), x = ms => pad + (ms - t0) / (t1 - t0 || 1) * (W - 2 * pad);
+  g.strokeStyle = '#2a3140'; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(pad, y(st.cfg.startEquity)); g.lineTo(W - pad, y(st.cfg.startEquity)); g.stroke(); g.setLineDash([]);
+  for (const { m, pts } of series) {
+    g.strokeStyle = m.color; g.lineWidth = 2; g.beginPath();
+    pts.forEach((p, i) => { const xx = x(p.t || Date.parse(p.d)); i ? g.lineTo(xx, y(p.eq)) : g.moveTo(xx, y(p.eq)); });
+    g.stroke(); g.lineWidth = 1;
+  }
+  g.fillStyle = '#9aa4b2';
+  g.fillText('$' + mx.toFixed(2), 4, y(mx) + 4); g.fillText('$' + mn.toFixed(2), 4, y(mn) + 4);
+  g.fillText(new Date(t0).toISOString().slice(0, 10), pad, H - 10); g.fillText('today', W - pad - 34, H - 10);
+  g.fillText('start $' + st.cfg.startEquity + ' (dashed)', pad, y(st.cfg.startEquity) - 6);
+}
+function mathTab() {
+  const c = S.st.cfg;
+  return '<div class="rules">'
+    + '<h3>The rules every lane shares</h3>'
+    + '<p>At every closed <code>' + c.tf + '</code> candle it scores the top ' + c.topN + ' liquid coins with the same engine used by the scanner (validated 2022&ndash;2026). A coin qualifies only when ALL of these hold: <b>chance of any event-size move &ge; ' + (c.minChance * 100).toFixed(0) + '%</b> within ' + c.W + ' candles (the offline top-5% band), <b>a direction lean &ge; ' + c.leanMinPts + ' points</b>, and <b>the last candle having moved AGAINST the lean</b> ("counter" entry: the model says up but the last hour fell, or vice versa &mdash; that combination was the single best filter found). Every lane then enters <b>at that candle\u2019s close</b> in the lean direction &mdash; long, or a simulated short &mdash; for $' + c.notionalPerTrade + ' fixed, max ' + c.maxOpen + ' at once per lane, one position per coin per lane. Each lane is an <b>independent $' + c.startEquity + ' paper book</b> (own cash, stats, equity curve and loss cap) &mdash; think of it as three accounts, not one account split three ways. Exits are the ONLY difference: first-touch TP/SL with the open-proximity tie-break when one candle touches both (same convention as the backtest), or time exit at candle ' + c.W + '. Fees: ' + c.feeBpsPerSide + ' bps per side = ' + (2 * c.feeBpsPerSide) + ' bps round-trip, the real USDT-M futures taker rate. Safety: after ' + c.maxLossesPerDay + ' losing closes in one day, that lane takes no new entries until tomorrow.</p>'
+    + '<h3>The three lanes and what history says about them</h3>'
+    + '<p>Same entries, same 2025&ndash;2026 out-of-sample data (filter lean&ge;10 + counter, n=1,222), only the exit changes. Numbers are per trade in bps of notional:</p>'
+    + '<table><thead><tr><th class="l">Geometry</th><th>Win rate</th><th>Worst streak</th><th>Gross</th><th>After futures-taker fees (10 bps RT)</th><th>After spot fees (20 bps)</th><th>Maker-style</th></tr></thead><tbody>'
+    + '<tr><td class="l"><b>Scalp &mdash; TP 0.10% / SL 0.75%</b></td><td><b>95.25%</b> (n=1,222)</td><td>2 losses</td><td>+6.0 bps &plusmn; 0.5</td><td class="neg">&minus;4.0 bps</td><td class="neg">&minus;14.0 bps</td><td class="pos">+1.7 bps</td></tr>'
+    + '<tr><td class="l"><b>Balanced &mdash; TP 0.30% / SL 1.50%</b> (old default)</td><td><b>89.7%</b></td><td>3 losses</td><td>+12.1 bps &plusmn; 1.5</td><td class="pos">+2.1 bps</td><td class="neg">&minus;7.9 bps</td><td class="pos">+7.5 bps</td></tr>'
+    + '<tr><td class="l"><b>Runner &mdash; TP 3.00% / SL 4.00%</b></td><td>47.6%</td><td>10 losses</td><td>+28.9 bps &plusmn; 8.7</td><td class="pos">+18.9 bps</td><td class="pos">+8.9 bps</td><td class="pos">+22.5 bps</td></tr>'
+    + '</tbody></table>'
+    + '<p><b>Read each row honestly.</b> <b>Scalp</b> wins 20 of 21 trades and never lost more than 2 in a row over two years &mdash; but a win pays 0.10% while a loss costs 0.75% plus fees, so each loss erases about 9 wins and the scoreboard still bleeds ~4 bps per trade on futures taker. Its only fee-surviving variant is maker-style (post-only limit orders both sides). <b>Balanced</b> is the old default geometry: with the new, stricter entry filter it actually comes out slightly positive after futures-taker fees (+2.1 bps &plusmn; 1.5) &mdash; promising but thin. <b>Runner</b> has the only strongly positive expectancy we measured (+18.9 bps), because a 3% target rides the real event-size moves the model predicts &mdash; but it wins only 47.6% of trades, loses up to 10 in a row (~$2 on this $' + c.startEquity + ' book), and its &plusmn;8.7 bps uncertainty plus the fact it was picked from 742 grid combinations means you should treat its edge as roughly half of what the table says until it proves itself live. That is exactly what this race is for.</p>'
+    + '<p>Also honest: about 55% of scalp wins and 55% of balanced wins are intra-bar (TP and SL touched in the same candle &mdash; the tie is resolved by the open-proximity rule), and real limit fills at 0.10% need price to trade <i>through</i> the level, so live results will be somewhat worse than the walk. At 15m nothing reaches 95% (best ~79%) &mdash; the 95% profile is a 1h phenomenon.</p>'
+    + '<h3>The $' + c.startEquity + ' book math, per lane (at $' + c.notionalPerTrade + ' notional, ~2&ndash;3 trades/day)</h3>'
+    + '<ul>'
+    + '<li><b>Scalp:</b> ~&minus;$0.002 per trade after fees &rarr; about &minus;$0.005/day. A slow, honest bleed; the daily loss cap bounds the worst day to 3 losses &asymp; &minus;$0.13. Your $' + c.startEquity + ' survives for years &mdash; this lane is for learning and for the 95%-win-rate experience, not income.</li>'
+    + '<li><b>Balanced:</b> ~+$0.001 per trade &rarr; about +$0.003/day. Roughly breakeven &mdash; within its own error bars. The race will tell.</li>'
+    + '<li><b>Runner:</b> ~+$0.009 per trade &rarr; about +$0.02/day, with losing streaks that can take ~10% off the book before it recovers. The only lane with a real shot at clearing fees &mdash; if the backtest edge survives live.</li>'
+    + '</ul>'
+    + '<h3>How to read the race (so we do not fool ourselves)</h3>'
+    + '<ul><li><b>Same entries, different exits</b> &mdash; whatever separates the lanes is caused by the exit geometry alone. That is why they run inside one bot instead of three repos.</li>'
+    + '<li><b>Judge expectancy, not win rate.</b> Scalp will show the prettiest win-rate number forever and still lose money after fees. The row that matters is the one with the best <i>net expectancy per trade</i>.</li>'
+    + '<li><b>500 trades per lane</b> (~3+ months) before believing any number. Until then, differences are noise. Watch the runner lane&rsquo;s live expectancy vs its backtest +18.9 bps &plusmn; 8.7: if live lands near zero, the grid-search edge was overfit; if it holds near +10, we have something.</li>'
+    + '<li><b>When one wins:</b> keep the winner, retire the others (delete them from <code>lanes</code> in config.json &mdash; their history stays on the page as a retired row), and only then think about real money, as maker orders on futures for the shorts. The bar for that: 3 months of paper results matching the backtest.</li></ul>'
+    + '<h3>Settings (edit config.json in the repo)</h3>'
+    + '<p><b>Lanes</b> are the <code>lanes</code> array: <code>{"name":"scalp","tpPct":0.10,"slPct":0.75}</code> &mdash; add, remove or rename; a new lane starts a fresh $' + c.startEquity + ' book, a removed lane keeps its history but takes no new entries. Set <code>lanes: []</code> for a single legacy book using <code>tpPct</code>/<code>slPct</code>/<code>tpMode</code>. Other knobs: <code>startEquity</code> ' + c.startEquity + ' (per book), <code>notionalPerTrade</code> ' + c.notionalPerTrade + ', <code>maxOpen</code> ' + c.maxOpen + ' (per lane), <code>leanMinPts</code> ' + c.leanMinPts + ', <code>entryFilter</code> ' + (c.entryFilter || 'any') + ', <code>maxLossesPerDay</code> ' + c.maxLossesPerDay + ', <code>minChance</code> ' + c.minChance + ', <code>feeBpsPerSide</code> ' + c.feeBpsPerSide + ' (5 = USDT-M futures taker, 10 = spot taker, ~2 = maker), <code>tf</code> ' + c.tf + ', <code>W</code> ' + c.W + ', <code>allowShort</code> ' + c.allowShort + ' (spot cannot short &mdash; shorts are simulated on spot prices; live they map to USDT-M perpetuals of the same coin). Changes apply to new trades only; to restart the books, delete the <code>startMs</code> line and the files in <code>docs/data/</code>.</p>'
+    + '</div>';
+}
+function dataTab() {
+  const st = S.st;
+  let h = '<h3 style="font-size:14px;margin:4px 0">The bot\u2019s data</h3>';
+  h += '<p>Every open/close event is appended to <code>docs/data/trades.jsonl</code> with the lane name and the full signal context: the 11 magnitude features, the 5 direction inputs, the probabilities, the lean, event sizes, entry/exit, reason, fees, net, MFE/MAE and the R multiple. Skipped candidates go to <code>skips-&lt;date&gt;.jsonl</code> with the reason (and which lanes had no capacity). After a few weeks this is the dataset that tells us which exit geometry actually clears fees live &mdash; the whole point of the race.</p>';
+  if (st.files && st.files.length) h += '<div class="dl">' + st.files.map(x => '<a href="data/' + x.f + '" download>' + x.f + ' <span class="dim">(' + (x.b / 1e3).toFixed(0) + ' KB)</span></a>').join('') + '</div>';
+  h += '<p class="hint">Bring the whole repo (Code &rarr; Download ZIP) to the next improvement round. Judgement rule: at least 3 months and 500 closed trades per lane before believing any number here.</p>';
+  return h;
+}
+function renderTab() {
+  const t = S.tab, el = $('tabBody');
+  el.innerHTML = t === 'now' ? nowTab() : t === 'open' ? openTab() : t === 'closed' ? closedTab() : t === 'race' ? raceTab() : t === 'math' ? mathTab() : dataTab();
+  if (t === 'race') drawEq();
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+}
+async function load() {
+  try {
+    const r = await fetch('data/state.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    S.st = await r.json();
+    if (!S.st.lanes) throw new Error('state.json is the old single-strategy format');
+    $('status').textContent = 'Last run: ' + tstr(S.st.updatedMs); $('status').className = 'status ok';
+    render();
+  } catch (e) { $('status').textContent = 'No lane data yet (' + e.message + '). Run the workflow once from the Actions tab.'; $('status').className = 'status bad'; }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { S.tab = b.dataset.t; if (S.st) renderTab(); });
+  $('btnRefresh').onclick = load; load(); setInterval(load, 5 * 60000);
+});
+</script></body></html>
