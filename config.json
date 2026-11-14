@@ -17,8 +17,21 @@
   "allowShort": true,
   "retentionDays": 120,
   "lanes": [
-    { "name": "scalp", "tpPct": 0.10, "slPct": 0.75 },
-    { "name": "balanced", "tpPct": 0.30, "slPct": 1.50 },
-    { "name": "runner", "tpPct": 3.00, "slPct": 4.00 }
-  ]
+    {
+      "name": "scalp",
+      "tpPct": 0.1,
+      "slPct": 0.75
+    },
+    {
+      "name": "balanced",
+      "tpPct": 0.3,
+      "slPct": 1.5
+    },
+    {
+      "name": "runner",
+      "tpPct": 3,
+      "slPct": 4
+    }
+  ],
+  "startMs": 1794650724995
 }
