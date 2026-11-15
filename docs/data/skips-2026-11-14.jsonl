@@ -5,3 +5,9 @@
 {"t":1794682800000,"s":"BTCUSDT","pa":0.5723,"dl":0.437,"r1":0.0025,"why":"lean below 10pts"}
 {"t":1794682800000,"s":"BNBUSDT","pa":0.5599,"dl":0.4097,"r1":0.0026,"why":"lean below 10pts"}
 
+{"t":1794697200000,"s":"ASTERUSDT","pa":0.822,"dl":0.5603,"r1":0.0105,"why":"lean below 10pts"}
+{"t":1794697200000,"s":"BTCUSDT","pa":0.6974,"dl":null,"r1":0.0095,"why":"no lean (signals conflict)"}
+{"t":1794697200000,"s":"ETHUSDT","pa":0.6473,"dl":null,"r1":0.0139,"why":"no lean (signals conflict)"}
+{"t":1794697200000,"s":"SOLUSDT","pa":0.597,"dl":0.4196,"r1":0.0166,"why":"lean below 10pts"}
+{"t":1794697200000,"s":"BNBUSDT","pa":0.5875,"dl":null,"r1":0.0124,"why":"no lean (signals conflict)"}
+
