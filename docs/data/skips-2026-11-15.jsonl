@@ -9,3 +9,7 @@
 {"t":1794747600000,"s":"SOPHUSDT","pa":0.682,"dl":null,"r1":-0.044,"why":"no lean (signals conflict)"}
 {"t":1794747600000,"s":"BTCUSDT","pa":0.576,"dl":0.5612,"r1":-0.001,"why":"lean below 10pts"}
 
+{"t":1794765600000,"s":"ASTERUSDT","pa":0.7108,"dl":0.5571,"r1":0.023,"why":"lean below 10pts"}
+{"t":1794765600000,"s":"INITUSDT","pa":0.5825,"dl":0.3768,"r1":-0.0042,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1794765600000,"s":"SOPHUSDT","pa":0.5607,"dl":null,"r1":0.0397,"why":"no lean (signals conflict)"}
+
