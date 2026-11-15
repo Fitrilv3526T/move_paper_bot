@@ -4,3 +4,8 @@
 {"t":1794718800000,"s":"ETHUSDT","pa":0.58,"dl":null,"r1":-0.0069,"why":"no lean (signals conflict)"}
 {"t":1794718800000,"s":"SOLUSDT","pa":0.575,"dl":null,"r1":-0.0016,"why":"no lean (signals conflict)"}
 
+{"t":1794747600000,"s":"ASTERUSDT","pa":0.7383,"dl":null,"r1":-0.0034,"why":"no lean (signals conflict)"}
+{"t":1794747600000,"s":"INITUSDT","pa":0.6905,"dl":0.3519,"r1":-0.0487,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1794747600000,"s":"SOPHUSDT","pa":0.682,"dl":null,"r1":-0.044,"why":"no lean (signals conflict)"}
+{"t":1794747600000,"s":"BTCUSDT","pa":0.576,"dl":0.5612,"r1":-0.001,"why":"lean below 10pts"}
+
