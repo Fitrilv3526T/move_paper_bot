@@ -5,3 +5,8 @@
 {"t":1794823200000,"s":"ASTERUSDT","pa":0.7447,"dl":0.5552,"r1":-0.0053,"why":"lean below 10pts"}
 {"t":1794823200000,"s":"SOPHUSDT","pa":0.6153,"dl":0.3815,"r1":0,"why":"counter filter: last candle moved WITH the lean (need it against)"}
 
+{"t":1794855600000,"s":"BTCUSDT","pa":0.6933,"dl":null,"r1":0.0002,"why":"no lean (signals conflict)"}
+{"t":1794855600000,"s":"ASTERUSDT","pa":0.6526,"dl":0.5608,"r1":-0.007,"why":"lean below 10pts"}
+{"t":1794855600000,"s":"NVDABUSDT","pa":0.6522,"dl":null,"r1":0.0001,"why":"no lean (signals conflict)"}
+{"t":1794855600000,"s":"HUMAUSDT","pa":0.5348,"dl":0.5823,"r1":0.0993,"why":"lean below 10pts"}
+
