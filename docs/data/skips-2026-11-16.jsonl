@@ -2,3 +2,6 @@
 {"t":1794794400000,"s":"NVDABUSDT","pa":0.5478,"dl":null,"r1":0.0134,"why":"no lean (signals conflict)"}
 {"t":1794794400000,"s":"SOPHUSDT","pa":0.5376,"dl":null,"r1":0.0303,"why":"no lean (signals conflict)"}
 
+{"t":1794823200000,"s":"ASTERUSDT","pa":0.7447,"dl":0.5552,"r1":-0.0053,"why":"lean below 10pts"}
+{"t":1794823200000,"s":"SOPHUSDT","pa":0.6153,"dl":0.3815,"r1":0,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+
