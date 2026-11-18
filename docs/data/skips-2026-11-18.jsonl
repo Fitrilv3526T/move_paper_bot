@@ -2,3 +2,5 @@
 {"t":1794963600000,"s":"SOXSBUSDT","pa":0.649,"dl":null,"r1":0.1002,"why":"no lean (signals conflict)"}
 {"t":1794963600000,"s":"SOXLBUSDT","pa":0.5664,"dl":0.5752,"r1":-0.0768,"why":"lean below 10pts"}
 
+{"t":1794992400000,"s":"NVDABUSDT","pa":0.6693,"dl":0.5643,"r1":0.0102,"why":"lean below 10pts"}
+
