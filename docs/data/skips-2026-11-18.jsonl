@@ -4,3 +4,6 @@
 
 {"t":1794992400000,"s":"NVDABUSDT","pa":0.6693,"dl":0.5643,"r1":0.0102,"why":"lean below 10pts"}
 
+{"t":1795024800000,"s":"NVDABUSDT","pa":0.7643,"dl":null,"r1":0.0041,"why":"no lean (signals conflict)"}
+{"t":1795024800000,"s":"RLUSDUSDT","pa":0.6124,"dl":0.3485,"r1":-0.0001,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+
