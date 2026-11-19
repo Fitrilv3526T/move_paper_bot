@@ -1,2 +1,5 @@
 {"t":1795071600000,"s":"SOXSBUSDT","pa":0.6065,"dl":0.3814,"r1":-0.0041,"why":"counter filter: last candle moved WITH the lean (need it against)"}
 
+{"t":1795104000000,"s":"MMTUSDT","pa":0.9558,"dl":0.4498,"r1":0.0414,"why":"lean below 10pts"}
+{"t":1795104000000,"s":"XAUTUSDT","pa":0.5575,"dl":null,"r1":0.003,"why":"no lean (signals conflict)"}
+
