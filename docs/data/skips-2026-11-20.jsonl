@@ -9,3 +9,18 @@
 {"t":1795176000000,"s":"PAXGUSDT","pa":0.7002,"dl":null,"r1":-0.0009,"why":"no lean (signals conflict)"}
 {"t":1795176000000,"s":"GOOGLBUSDT","pa":0.6033,"dl":null,"r1":-0.006,"why":"no lean (signals conflict)"}
 
+{"t":1795204800000,"s":"PAXGUSDT","pa":0.814,"dl":0.4425,"r1":0.0003,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"XAUTUSDT","pa":0.8098,"dl":null,"r1":0.0002,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"BTCUSDT","pa":0.8068,"dl":null,"r1":-0.0016,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"QQQBUSDT","pa":0.7848,"dl":null,"r1":-0.0077,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"ETHUSDT","pa":0.7724,"dl":null,"r1":-0.0035,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"NVDABUSDT","pa":0.7707,"dl":0.5513,"r1":-0.0238,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"BNBUSDT","pa":0.7449,"dl":0.4493,"r1":-0.0021,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"MMTUSDT","pa":0.7239,"dl":null,"r1":0.0055,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"GOOGLBUSDT","pa":0.6778,"dl":0.5642,"r1":-0.0172,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"SOLUSDT","pa":0.668,"dl":0.4204,"r1":-0.0103,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"INTCBUSDT","pa":0.613,"dl":null,"r1":-0.0312,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"SOXLBUSDT","pa":0.6034,"dl":0.5992,"r1":-0.0535,"why":"lean below 10pts"}
+{"t":1795204800000,"s":"SPCXBUSDT","pa":0.5628,"dl":null,"r1":-0.01,"why":"no lean (signals conflict)"}
+{"t":1795204800000,"s":"CRCLBUSDT","pa":0.5613,"dl":null,"r1":-0.0222,"why":"no lean (signals conflict)"}
+
