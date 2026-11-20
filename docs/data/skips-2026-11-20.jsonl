@@ -3,3 +3,9 @@
 {"t":1795143600000,"s":"PAXGUSDT","pa":0.7187,"dl":null,"r1":0.0006,"why":"no lean (signals conflict)"}
 {"t":1795143600000,"s":"BTCUSDT","pa":0.534,"dl":null,"r1":-0.0018,"why":"no lean (signals conflict)"}
 
+{"t":1795176000000,"s":"MMTUSDT","pa":0.839,"dl":null,"r1":-0.0257,"why":"no lean (signals conflict)"}
+{"t":1795176000000,"s":"QQQBUSDT","pa":0.7805,"dl":0.3599,"r1":-0.0034,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1795176000000,"s":"XAUTUSDT","pa":0.7125,"dl":null,"r1":-0.0004,"why":"no lean (signals conflict)"}
+{"t":1795176000000,"s":"PAXGUSDT","pa":0.7002,"dl":null,"r1":-0.0009,"why":"no lean (signals conflict)"}
+{"t":1795176000000,"s":"GOOGLBUSDT","pa":0.6033,"dl":null,"r1":-0.006,"why":"no lean (signals conflict)"}
+
