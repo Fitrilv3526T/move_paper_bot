@@ -1,0 +1,5 @@
+{"t":1795143600000,"s":"XAUTUSDT","pa":0.7746,"dl":null,"r1":0.0003,"why":"no lean (signals conflict)"}
+{"t":1795143600000,"s":"MMTUSDT","pa":0.7652,"dl":0.5807,"r1":-0.0222,"why":"lean below 10pts"}
+{"t":1795143600000,"s":"PAXGUSDT","pa":0.7187,"dl":null,"r1":0.0006,"why":"no lean (signals conflict)"}
+{"t":1795143600000,"s":"BTCUSDT","pa":0.534,"dl":null,"r1":-0.0018,"why":"no lean (signals conflict)"}
+
