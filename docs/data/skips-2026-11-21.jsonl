@@ -1,0 +1,10 @@
+{"t":1795222800000,"s":"MMTUSDT","pa":0.6718,"dl":null,"r1":-0.0241,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"NVDABUSDT","pa":0.6504,"dl":null,"r1":0.0032,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"BTCUSDT","pa":0.6494,"dl":null,"r1":-0.0001,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"QQQBUSDT","pa":0.6168,"dl":null,"r1":-0.0004,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"ETHUSDT","pa":0.5846,"dl":null,"r1":0.0016,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"PAXGUSDT","pa":0.5765,"dl":null,"r1":-0.0018,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"XAUTUSDT","pa":0.5692,"dl":null,"r1":-0.0019,"why":"no lean (signals conflict)"}
+{"t":1795222800000,"s":"SOXLBUSDT","pa":0.547,"dl":0.5506,"r1":0.0021,"why":"lean below 10pts"}
+{"t":1795222800000,"s":"GOOGLBUSDT","pa":0.5346,"dl":null,"r1":0.001,"why":"no lean (signals conflict)"}
+
