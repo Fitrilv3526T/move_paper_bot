@@ -14,3 +14,6 @@
 {"t":1795251600000,"s":"MMTUSDT","pa":0.5852,"dl":null,"r1":-0.0008,"why":"no lean (signals conflict)"}
 {"t":1795251600000,"s":"SOLUSDT","pa":0.5563,"dl":null,"r1":0.012,"why":"no lean (signals conflict)"}
 
+{"t":1795276800000,"s":"BTCUSDT","pa":0.6052,"dl":0.5924,"r1":0.0019,"why":"lean below 10pts"}
+{"t":1795276800000,"s":"MSTRBUSDT","pa":0.5607,"dl":0.5604,"r1":0.0017,"why":"lean below 10pts"}
+
