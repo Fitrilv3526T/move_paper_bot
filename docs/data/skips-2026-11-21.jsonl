@@ -8,3 +8,9 @@
 {"t":1795222800000,"s":"SOXLBUSDT","pa":0.547,"dl":0.5506,"r1":0.0021,"why":"lean below 10pts"}
 {"t":1795222800000,"s":"GOOGLBUSDT","pa":0.5346,"dl":null,"r1":0.001,"why":"no lean (signals conflict)"}
 
+{"t":1795251600000,"s":"BTCUSDT","pa":0.7157,"dl":null,"r1":0.0039,"why":"no lean (signals conflict)"}
+{"t":1795251600000,"s":"BNBUSDT","pa":0.6481,"dl":null,"r1":0.0073,"why":"no lean (signals conflict)"}
+{"t":1795251600000,"s":"ETHUSDT","pa":0.6244,"dl":0.5544,"r1":0.0066,"why":"lean below 10pts"}
+{"t":1795251600000,"s":"MMTUSDT","pa":0.5852,"dl":null,"r1":-0.0008,"why":"no lean (signals conflict)"}
+{"t":1795251600000,"s":"SOLUSDT","pa":0.5563,"dl":null,"r1":0.012,"why":"no lean (signals conflict)"}
+
