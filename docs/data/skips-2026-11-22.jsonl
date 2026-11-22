@@ -2,3 +2,6 @@
 
 {"t":1795363200000,"s":"MMTUSDT","pa":0.6953,"dl":0.5725,"r1":-0.0221,"why":"lean below 10pts"}
 
+{"t":1795381200000,"s":"PROMUSDT","pa":0.6915,"dl":0.367,"r1":-0.0062,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1795381200000,"s":"MMTUSDT","pa":0.5661,"dl":null,"r1":-0.0145,"why":"no lean (signals conflict)"}
+
