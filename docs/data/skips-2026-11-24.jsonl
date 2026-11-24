@@ -1,3 +1,8 @@
 {"t":1795507200000,"s":"MMTUSDT","pa":0.7635,"dl":null,"r1":-0.13,"why":"no lean (signals conflict)"}
 {"t":1795507200000,"s":"PROMUSDT","pa":0.6062,"dl":0.3937,"r1":-0.0014,"why":"counter filter: last candle moved WITH the lean (need it against)"}
 
+{"t":1795546800000,"s":"SOXSBUSDT","pa":0.6093,"dl":0.4071,"r1":0.0083,"why":"lean below 10pts"}
+{"t":1795546800000,"s":"NVDABUSDT","pa":0.608,"dl":null,"r1":-0.0048,"why":"no lean (signals conflict)"}
+{"t":1795546800000,"s":"GOOGLBUSDT","pa":0.5785,"dl":null,"r1":-0.0028,"why":"no lean (signals conflict)"}
+{"t":1795546800000,"s":"MMTUSDT","pa":0.5687,"dl":null,"r1":0.0086,"why":"no lean (signals conflict)"}
+
