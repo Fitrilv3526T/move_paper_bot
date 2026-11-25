@@ -4,3 +4,11 @@
 {"t":1795608000000,"s":"PAXGUSDT","pa":0.5741,"dl":null,"r1":0.0079,"why":"no lean (signals conflict)"}
 {"t":1795608000000,"s":"XAUTUSDT","pa":0.5736,"dl":null,"r1":0.0079,"why":"no lean (signals conflict)"}
 
+{"t":1795640400000,"s":"QQQBUSDT","pa":0.6705,"dl":0.5616,"r1":-0.0039,"why":"lean below 10pts"}
+{"t":1795640400000,"s":"PAXGUSDT","pa":0.6313,"dl":0.601,"r1":0.0035,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1795640400000,"s":"MMTUSDT","pa":0.615,"dl":null,"r1":0.0109,"why":"no lean (signals conflict)"}
+{"t":1795640400000,"s":"SOXLBUSDT","pa":0.5793,"dl":null,"r1":-0.0209,"why":"no lean (signals conflict)"}
+{"t":1795640400000,"s":"XAUTUSDT","pa":0.5709,"dl":0.6016,"r1":0.0034,"why":"counter filter: last candle moved WITH the lean (need it against)"}
+{"t":1795640400000,"s":"SPCXBUSDT","pa":0.5674,"dl":0.5927,"r1":-0.0012,"why":"lean below 10pts"}
+{"t":1795640400000,"s":"NVDABUSDT","pa":0.5444,"dl":0.561,"r1":-0.0053,"why":"lean below 10pts"}
+
