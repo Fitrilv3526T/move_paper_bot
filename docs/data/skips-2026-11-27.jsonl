@@ -2,3 +2,6 @@
 
 {"t":1795784400000,"s":"MMTUSDT","pa":0.654,"dl":0.423,"r1":-0.0057,"why":"lean below 10pts"}
 
+{"t":1795813200000,"s":"WLFIUSDT","pa":0.5641,"dl":0.4283,"r1":0.0055,"why":"lean below 10pts"}
+{"t":1795813200000,"s":"MMTUSDT","pa":0.5503,"dl":null,"r1":0.0119,"why":"no lean (signals conflict)"}
+
